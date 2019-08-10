@@ -24,7 +24,7 @@ Measurement = Base.classes.measurement
 Station = Base.classes.station
 
 # Create our session (link) from Python to the DB
-def calc_temps(start_date, end_date):
+def calc_temps(start_date, end_date=dt.date.today()):
     """TMIN, TAVG, and TMAX for a list of dates.
     
     Args:
@@ -36,8 +36,8 @@ def calc_temps(start_date, end_date):
     """
     session = Session(engine)
 
-    if not (end_date and end_date.strip()):
-        end_date = dt.date.today()
+    # if not (end_date and end_date.strip()):
+    #     end_date = dt.date.today()
 
     return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
@@ -104,7 +104,7 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 def temp_by_date_start(start):
     
-    results = calc_temps(start,"")
+    results = calc_temps(start)
     period_temp = list(np.ravel(results))
 
     return jsonify(period_temp)
